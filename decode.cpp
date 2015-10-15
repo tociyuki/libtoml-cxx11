@@ -564,7 +564,7 @@ decoder_type::parse (doc_type& doc)
                 value = doc.set (doc.array (), 0, v[2]);
                 break;
             case 31: // value_list: value_list "," endln value endln
-                value = doc.set_once (v[1], doc.size (v[1]), v[4]);
+                value = doc.set_unify (v[1], doc.size (v[1]), v[4]);
                 break;
             case 34: // table:
                 value = doc.table ();
@@ -697,7 +697,7 @@ decoder_type::merge_array (doc_type& doc,
             node = doc.get (node, key);
             if (doc.at_tag (node) != VALUE_ARRAY)
                 throw std::out_of_range ("merge_array: conflict table");
-            doc.set_once (node, doc.size (node), body);
+            doc.set_unify (node, doc.size (node), body);
             break;
         }
     }

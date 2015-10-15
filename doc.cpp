@@ -337,13 +337,13 @@ doc_type::set (value_id const id, std::size_t const idx, value_id value)
 }
 
 value_id
-doc_type::set_once (value_id const id, std::size_t const idx, value_id value)
+doc_type::set_unify (value_id const id, std::size_t const idx, value_id value)
 {
     if (at_tag (id) != VALUE_ARRAY)
-        throw std::out_of_range ("set_once: invalid type");
+        throw std::out_of_range ("set_unify: invalid type");
     std::size_t n = size (id);
     if (n > 0 && at_tag (get (id, 0)) != at_tag (value))
-        throw std::out_of_range ("set_once: different type");
+        throw std::out_of_range ("set_unify: different type");
     if (idx >= at_array (id).size ())
         at_array (id).resize (idx + 1, 0);
     at_array (id)[idx] = value;

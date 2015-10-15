@@ -113,7 +113,7 @@ public:
     value_id get (value_id const id, std::size_t const idx) const;
     value_id get (value_id const id, std::string const& key) const;
     value_id set (value_id const id, std::size_t const idx, value_id value);
-    value_id set_once (value_id const id, std::size_t const idx, value_id value);
+    value_id set_unify (value_id const id, std::size_t const idx, value_id value);
     value_id set (value_id const id, std::string const& key, value_id value);
 
     bool decode_toml (std::string const& source);
