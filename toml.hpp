@@ -118,7 +118,7 @@ public:
 
     bool decode_toml (std::string const& source);
     void encode_toml (std::ostream& out) const;
-    void encode_json (std::ostream& out) const;
+    void encode_json (std::ostream& out, int const padding = 0) const;
     std::string str (value_id const id) const;
 
 private:
@@ -136,7 +136,7 @@ private:
     void encode_toml_table_section (std::ostream& out, value_id const id, std::vector<std::string>& path) const;
     void encode_toml_key (std::ostream& out, std::string const& key) const;
     void encode_toml_flow (std::ostream& out, value_id const id) const;
-    void encode_json (std::ostream& out, value_id const id) const;
+    void encode_json (std::ostream& out, value_id const x, int const margin, int const padding) const;
 };
 
 }//namespace toml

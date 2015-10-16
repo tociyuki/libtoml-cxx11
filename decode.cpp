@@ -26,7 +26,7 @@ enum {
     TOKEN_EQUAL,
     TOKEN_COMMA,
     TOKEN_ENDLINE,
-    TOKEN_ENDMARK,
+    TOKEN_ENDMARK
 };
 
 struct parsed_type {

@@ -262,7 +262,7 @@ doc_type::datetime (std::string const& x)
     strings.emplace_back (x);
     value_id id = cell.size ();
     cell.emplace_back (VALUE_DATETIME, oop);
-    return id;        
+    return id;
 }
 
 std::string
@@ -280,7 +280,7 @@ doc_type::string (std::string const& x)
     strings.emplace_back (x);
     value_id id = cell.size ();
     cell.emplace_back (VALUE_STRING, oop);
-    return id;        
+    return id;
 }
 
 std::string const&
@@ -306,7 +306,7 @@ doc_type::array ()
     arrays.push_back ({});
     value_id id = cell.size ();
     cell.emplace_back (VALUE_ARRAY, oop);
-    return id;        
+    return id;
 }
 
 std::vector<value_id>&
@@ -421,4 +421,4 @@ doc_type::size (value_id const id) const
     return 0;
 }
 
-}//namespace toml
+}

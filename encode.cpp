@@ -23,8 +23,17 @@ doc_type::encode_quoted (std::string::const_iterator s, std::string::const_itera
         case '\f': buf += "\\f"; break;
         case '\r': buf += "\\r"; break;
         default:
-            if (' ' <= code && code != 0x7f) {
+            if (' ' <= code && code <= 0x7e) {
                 buf.push_back (code);
+            }
+            else if (0xc0 <= code && code <= 0xdf && s + 1 < e) {
+                buf.append (s, s + 2); s += 1;
+            }
+            else if (0xe0 <= code && code <= 0xef && s + 2 < e) {
+                buf.append (s, s + 3); s += 2;
+            }
+            else if (0xf0 <= code && code <= 0xf8 && s + 3 < e) {
+                buf.append (s, s + 4); s += 3;
             }
             else {
                 buf += "\\x";
@@ -174,8 +183,17 @@ doc_type::encode_toml_flow (std::ostream& out, value_id const id) const
 }
 
 void
-doc_type::encode_json (std::ostream& out, value_id const x) const
+doc_type::encode_json (std::ostream& out, value_id const x,
+    int const margin, int const padding) const
 {
+    std::string indent (margin, ' ');
+    std::string nest (margin + padding, ' ');
+    std::string space ((padding ? 1 : 0), ' ');
+    std::ostringstream outendl;
+    outendl << std::endl;
+    std::string endl = outendl.str ();
+    if (! padding)
+        endl.clear ();
     int c = 0;
     switch (at_tag (x)) {
     case VALUE_NULL: out << "NULL"; break;
@@ -190,33 +208,45 @@ doc_type::encode_json (std::ostream& out, value_id const x) const
     case VALUE_DATETIME: out << encode_quoted (at_datetime (x)); break;
     case VALUE_STRING: out << encode_quoted (at_string (x)); break;
     case VALUE_ARRAY:
-        out << "[";
-        for (auto y : at_array (x)) {
-            if (c++ > 0)
-                out << ", ";
-            encode_json (out, y);
+        if (size (x) == 0) {
+            out << "[]";
         }
-        out << "]";
+        else {
+            out << "[" << endl;
+            for (auto y : at_array (x)) {
+                if (c++ > 0)
+                    out << "," << endl;
+                out << nest;
+                encode_json (out, y, margin + padding, padding);
+            }
+            out << endl << indent << "]";
+        }
         break;
     case VALUE_TABLE:
-        out << "{";
-        for (auto y : at_table (x)) {
-            if (c++ > 0)
-                out << ", ";
-            out << encode_quoted (y.first);
-            out << ": ";
-            encode_json (out, y.second);
+        if (size (x) == 0) {
+            out << "{}";
         }
-        out << "}";
+        else {
+            out << "{" << endl;
+            for (auto y : at_table (x)) {
+                if (c++ > 0)
+                    out << "," << endl;
+                out << nest << encode_quoted (y.first) << ":" << space;
+                encode_json (out, y.second, margin + padding, padding);
+            }
+            out << endl << indent << "}";
+        }
         break;
     default: break;
     }
 }
 
 void
-doc_type::encode_json (std::ostream& out) const
+doc_type::encode_json (std::ostream& out, int const padding) const
 {
-    return encode_json (out, root);
+    encode_json (out, root, 0, padding);
+    if (padding)
+        out << std::endl;
 }
 
 std::string

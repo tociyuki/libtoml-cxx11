@@ -44,7 +44,7 @@ color = "gray"
         exit (EXIT_FAILURE);
     }
     std::cout << "/* example 1 */" << std::endl;
-    doc.encode_json (std::cout);
+    doc.encode_json (std::cout, 2);
     std::cout << std::endl;
 }
 
