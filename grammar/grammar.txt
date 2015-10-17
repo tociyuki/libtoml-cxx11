@@ -1,0 +1,57 @@
+/* TOML LALR (1) Grammar */
+
+toml    :
+        | statements
+        | statements sections
+        | sections
+
+sections
+        : sections '[' keypath ']' ENDLINE statements
+        | sections '[' keypath ']' ENDLINE
+        | sections '[' '[' keypath ']' ']' ENDLINE statements
+        | sections '[' '[' keypath ']' ']' ENDLINE
+        | '[' keypath ']' ENDLINE statements
+        | '[' keypath ']' ENDLINE
+        | '[' '[' keypath ']' ']' ENDLINE statements
+        | '[' '[' keypath ']' ']' ENDLINE
+
+keypath : keypath '.' key
+        | key
+
+key     : BAREKEY
+        | STRKEY
+
+statements
+        : statements pair ENDLINE
+        | pair ENDLINE
+
+pair    : key '=' value
+
+value   : BOOLEAN
+        | INTEGER
+        | FLOAT
+        | DATETIME
+        | STRING
+        | STRKEY
+        | '[' list ']'
+        | '{' table '}'
+
+array   : optional_endline
+        | value_list
+        | value_list ',' optional_endline
+
+value_list
+        : optional_endline value optional_endline
+        | value_list ',' optional_endline value optional_endline
+
+optional_endline
+        :
+        | ENDLINE
+
+table   :
+        | pair_list
+        | pair_list ','
+
+pair_list
+        : pair
+        | pair_list ',' pair

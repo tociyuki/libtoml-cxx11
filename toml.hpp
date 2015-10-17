@@ -39,6 +39,7 @@ public:
     virtual ~node_type ();
     virtual value_id forse (variation tag) = 0;
     virtual value_id object_id () const = 0;
+    variation tag () const;
     bool boolean () const;
     int64_t fixnum () const;
     double flonum () const;

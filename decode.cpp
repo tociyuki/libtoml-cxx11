@@ -10,23 +10,11 @@
 namespace toml {
 
 enum {
-    TOKEN_INVALID,
-    TOKEN_BAREKEY,
-    TOKEN_STRKEY,
-    TOKEN_STRING,
-    TOKEN_BOOLEAN,
-    TOKEN_FIXNUM,
-    TOKEN_FLONUM,
-    TOKEN_DATETIME,
-    TOKEN_LBRACE,
-    TOKEN_RBRACE,
-    TOKEN_LBRACKET,
-    TOKEN_RBRACKET,
-    TOKEN_DOT,
-    TOKEN_EQUAL,
-    TOKEN_COMMA,
-    TOKEN_ENDLINE,
-    TOKEN_ENDMARK
+    TOKEN_INVALID, TOKEN_BAREKEY, TOKEN_STRKEY,   TOKEN_STRING,
+    TOKEN_BOOLEAN, TOKEN_FIXNUM,  TOKEN_FLONUM,   TOKEN_DATETIME,
+    TOKEN_LBRACE,  TOKEN_RBRACE,  TOKEN_LBRACKET, TOKEN_RBRACKET,
+    TOKEN_DOT,     TOKEN_EQUAL,   TOKEN_COMMA,    TOKEN_ENDLINE,
+    TOKEN_ENDMARK,
 };
 
 struct parsed_type {
@@ -197,41 +185,42 @@ decoder_type::scan_barekey (std::string::const_iterator s, parsed_type& parsed)
     return parsed.kind != TOKEN_INVALID;
 }
 
+// generated: `cd grammar; make decoder-scan-number.cpp`
 bool
 decoder_type::scan_number (std::string::const_iterator s, parsed_type& parsed)
 {
-    static const uint32_t CCLASS[32] = {
+    enum { NSHIFT = 90 };
+    static const uint32_t CCLASS[16] = {
         0x00000000, 0x00000000, 0x00000000, 0x00000000,
         0x00000000, 0x00040350, 0x11111111, 0x11700000,
         0x00000600, 0x00000000, 0x00008000, 0x00900002,
         0x00000600, 0x00000000, 0x00000000, 0x00000000,
     };
     static const int BASE[36] = {
-          0,   0,   4,   6,  16,  22,   1,  12,  12,  18,  19,  26,  30,  32, 
-         30,  37,  38,  37,  41,  42,  45,  44,  55,  50,  51,  46,  56,  59, 
-         51,  61,  65,  62,  67,  75,  71,  79, 
+         0,  0,  4,  6, 16, 22,  1, 12, 12, 18, 19, 26, 30, 32, 30, 37, 38,
+        37, 41, 42, 45, 44, 55, 50, 51, 46, 56, 59, 51, 61, 65, 62, 67, 75,
+        71, 79 
     };
-    static const int SHIFT[90] = {
-              0, 0x00201, 0x00706, 0x01d01, 0x01d01, 0x00302, 0x01d02, 0x00403,
-        0x01d03, 0x01f02, 0x02102, 0x01f03, 0x02103, 0x00807, 0x00102, 0x00908,
-        0x00103, 0x00504, 0x01d04, 0x00a09, 0x00b0a, 0x01f04, 0x02104, 0x00505,
-        0x01d05, 0x00605, 0x00104, 0x01f05, 0x02105, 0x0170b, 0x0170b, 0x00d0c,
-        0x00105, 0x00e0d, 0x00c0b, 0x01c0b, 0x0030b, 0x00f0e, 0x0100f, 0x01110,
-        0x01711, 0x01711, 0x01312, 0x01413, 0x01211, 0x01615, 0x01c11, 0x00311,
-        0x01714, 0x01714, 0x01514, 0x01817, 0x01918, 0x01a19, 0x01c14, 0x00314,
-        0x01616, 0x01b1a, 0x01716, 0x01716, 0x01c1b, 0x0031c, 0x01e1d, 0x0201f,
-        0x01c16, 0x00316, 0x01e1e, 0x01d1e, 0x02020, 0x01f20, 0x01f1e, 0x0211e,
-        0x02322, 0x02120,       0, 0x0011e, 0x02321, 0x00220, 0x02221, 0x02221,
-        0x02323, 0x02223,       0,       0,       0,       0,       0,       0,
-              0, 0x00223, 
+    static const int SHIFT[NSHIFT] = {
+             0, 0x0201, 0x0706, 0x1d01, 0x1d01, 0x0302, 0x1d02, 0x0403,
+        0x1d03, 0x1f02, 0x2102, 0x1f03, 0x2103, 0x0807, 0x0502, 0x0908,
+        0x0503, 0x0504, 0x1d04, 0x0a09, 0x0b0a, 0x1f04, 0x2104, 0x0505,
+        0x1d05, 0x0605, 0x0504, 0x1f05, 0x2105, 0x170b, 0x170b, 0x0d0c,
+        0x0505, 0x0e0d, 0x0c0b, 0x1c0b, 0x070b, 0x0f0e, 0x100f, 0x1110,
+        0x1711, 0x1711, 0x1312, 0x1413, 0x1211, 0x1615, 0x1c11, 0x0711,
+        0x1714, 0x1714, 0x1514, 0x1817, 0x1918, 0x1a19, 0x1c14, 0x0714,
+        0x1616, 0x1b1a, 0x1716, 0x1716, 0x1c1b, 0x071c, 0x1e1d, 0x201f,
+        0x1c16, 0x0716, 0x1e1e, 0x1d1e, 0x2020, 0x1f20, 0x1f1e, 0x211e,
+        0x2322, 0x2120,      0, 0x051e, 0x2321, 0x0620, 0x2221, 0x2221,
+        0x2323, 0x2223,      0,      0,      0,      0,      0,      0,
+             0, 0x0623 
     };
-    static const int NSHIFT = sizeof (SHIFT) / sizeof (SHIFT[0]);
-    static const uint32_t MATCH = 10;
+    static const uint32_t MATCH = 10U;
     parsed.kind = TOKEN_INVALID;
     std::string literal;
     std::string::const_iterator const e = string.cend ();
     for (int next_state = 1; s <= e; ++s) {
-        uint32_t octet = s == e ? '\0' : static_cast<uint8_t> (*s);
+        uint32_t octet = s == e ? '\0' : ord (*s);
         int cls = s == e ? 0 : lookup_cls (CCLASS, 128U, octet);
         int const prev_state = next_state;
         next_state = 0;
@@ -242,10 +231,7 @@ decoder_type::scan_number (std::string::const_iterator s, parsed_type& parsed)
         if (next_state && s < e && '_' != octet)
             literal.push_back (octet);
         if (0 < m && m < NSHIFT && (SHIFT[m] & 0xff) == prev_state) {
-            int const k = (SHIFT[m] >> 8) & 0xff;
-            parsed.kind = 1 == k ? TOKEN_FIXNUM
-                        : 2 == k ? TOKEN_FLONUM
-                        :          TOKEN_DATETIME;
+            parsed.kind = (SHIFT[m] >> 8) & 0xff;
             try {
                 if (TOKEN_FIXNUM == parsed.kind)
                     parsed.literal_fixnum = std::stoll (literal);
@@ -263,9 +249,10 @@ decoder_type::scan_number (std::string::const_iterator s, parsed_type& parsed)
         if (! next_state)
             break;
     }
-    return TOKEN_INVALID != parsed.kind;        
+    return TOKEN_INVALID != parsed.kind;
 }
 
+// generated: `cd grammar; make decoder-scan-string.cpp`
 void
 decoder_type::encode_codepoint (uint32_t const uc, std::string& literal)
 {
@@ -292,10 +279,11 @@ decoder_type::encode_codepoint (uint32_t const uc, std::string& literal)
 bool
 decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
 {
+    enum { NSHIFT = 209 };
     static const uint32_t LOWERBOUNDS[5] = {0, 0x10000L, 0x0800L, 0x80L};
     static const uint32_t UPPERBOUND = 0x10ffffL;
     static const uint32_t CCLASS[32] = {
-        0x00000000, 0x09d00000, 0x00000000, 0x00000000,
+        0x00000000, 0x09d00d00, 0x00000000, 0x00000000,
         0x95c5555b, 0x55555555, 0x66666666, 0x66555555,
         0x56666665, 0x55555555, 0x55555755, 0x5555a555,
         0x56666665, 0x55555555, 0x55555855, 0x55555550,
@@ -305,42 +293,44 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
         0x22222222, 0x22222222, 0x11111111, 0x00000000,
     };
     static const int BASE[49] = {
-          0, -10,   2,   3,  17,  30,  43,  -8,   2,  17,  30,  43,  56,  64, 
-         54,  71,  72,  73,  74,  75,  76,  77,  80,  81,  82,  86,  95,  84, 
-        103, 104, 105, 106, 107, 108, 109, 115, 128, 130, 144, 157, 170, 115, 
-        128, 138, 183, 139, 144, 157, 195, 
+          0, -10,   2,   3,  17,  30,  43,  -8,   2,  17,  30,  43,  56,  64,
+         54,  71,  72,  73,  74,  75,  76,  77,  80,  81,  82,  86,  95,  84,
+        103, 104, 105, 106, 107, 108, 109, 115, 128, 130, 144, 157, 170, 115,
+        128, 138, 183, 139, 144, 157, 195 
     };
-    static const int SHIFT[209] = {
-              0, 0x02401, 0x00201, 0x10902, 0x10a02, 0x10b02, 0x00107, 0x30c02,
-        0x30c02, 0x30c02, 0x30c02, 0x30c02, 0x00d02, 0x30c02, 0x00302, 0x00403,
-        0x00208, 0x00103, 0x11604, 0x11704, 0x11804, 0x10a09, 0x31904, 0x31904,
-        0x31904, 0x31904, 0x31904, 0x01a04, 0x31904, 0x30504, 0x01904, 0x11605,
-        0x11705, 0x11805, 0x10b0a, 0x31905, 0x31905, 0x31905, 0x31905, 0x31905,
-        0x01a05, 0x31905, 0x30605, 0x31905, 0x11606, 0x11706, 0x11806, 0x20c0b,
-        0x31906, 0x31906, 0x31906, 0x31906, 0x31906, 0x01a06, 0x31906, 0x40706,
-        0x31906, 0x1090c, 0x10a0c, 0x10b0c, 0x60f0e, 0x30c0c, 0x30c0c, 0x30c0c,
-        0x30c0c, 0x30c0c, 0x00d0c, 0x30c0c, 0x0080c, 0x50c0d, 0x50c0d, 0x00e0d,
-        0x0120d, 0x50c0d, 0x50c0d, 0x50c0d, 0x50c0d, 0x6100f, 0x61110, 0x61211,
-        0x61312, 0x61413, 0x61514, 0x70c15, 0x11716, 0x11817, 0x21918, 0x11619,
-        0x11719, 0x11819, 0x61c1b, 0x31919, 0x31919, 0x31919, 0x31919, 0x31919,
-        0x01a19, 0x31919, 0x30519, 0x31919, 0x5191a, 0x5191a, 0x01b1a, 0x01f1a,
-        0x5191a, 0x5191a, 0x5191a, 0x5191a, 0x0231a, 0x61d1c, 0x61e1d, 0x61f1e,
-        0x6201f, 0x62120, 0x62221, 0x71922, 0x11623, 0x11723, 0x11823, 0x12a29,
-        0x31923, 0x31923, 0x31923, 0x31923, 0x02323, 0x01a23, 0x31923, 0x30523,
-        0x02323, 0x12924, 0x12a24, 0x12b24, 0x12b2a, 0x32c24, 0x32c24, 0x32c24,
-        0x32c24, 0x32c24, 0x32c24, 0x02524, 0x32c24, 0x02625, 0x22c2b, 0x12e2d,
-        0x00125, 0x12d26, 0x12e26, 0x12f26, 0x12f2e, 0x33026, 0x33026, 0x33026,
-        0x33026, 0x33026, 0x33026, 0x32726, 0x33026, 0x03026, 0x12d27, 0x12e27,
-        0x12f27, 0x2302f, 0x33027, 0x33027, 0x33027, 0x33027, 0x33027, 0x33027,
-        0x32827, 0x33027, 0x33027, 0x12d28, 0x12e28, 0x12f28,       0, 0x33028,
-        0x33028, 0x33028, 0x33028, 0x33028, 0x33028, 0x40728, 0x33028, 0x33028,
-        0x1292c, 0x12a2c, 0x12b2c,       0, 0x32c2c, 0x32c2c, 0x32c2c, 0x32c2c,
-        0x32c2c, 0x32c2c, 0x0072c, 0x32c2c, 0x12d30, 0x12e30, 0x12f30,       0,
-        0x33030, 0x33030, 0x33030, 0x33030, 0x33030, 0x33030, 0x32730, 0x33030,
-        0x33030, 
+    static const int SHIFT[NSHIFT] = {
+              0, 0x02401, 0x00201, 0x10902, 0x10a02, 0x10b02, 0x00307,
+        0x30c02, 0x30c02, 0x30c02, 0x30c02, 0x30c02, 0x00d02, 0x30c02,
+        0x00302, 0x00403, 0x00208, 0x00303, 0x11604, 0x11704, 0x11804,
+        0x10a09, 0x31904, 0x31904, 0x31904, 0x31904, 0x31904, 0x01a04,
+        0x31904, 0x30504, 0x01904, 0x11605, 0x11705, 0x11805, 0x10b0a,
+        0x31905, 0x31905, 0x31905, 0x31905, 0x31905, 0x01a05, 0x31905,
+        0x30605, 0x31905, 0x11606, 0x11706, 0x11806, 0x20c0b, 0x31906,
+        0x31906, 0x31906, 0x31906, 0x31906, 0x01a06, 0x31906, 0x40706,
+        0x31906, 0x1090c, 0x10a0c, 0x10b0c, 0x60f0e, 0x30c0c, 0x30c0c,
+        0x30c0c, 0x30c0c, 0x30c0c, 0x00d0c, 0x30c0c, 0x0080c, 0x50c0d,
+        0x50c0d, 0x00e0d, 0x0120d, 0x50c0d, 0x50c0d, 0x50c0d, 0x50c0d,
+        0x6100f, 0x61110, 0x61211, 0x61312, 0x61413, 0x61514, 0x70c15,
+        0x11716, 0x11817, 0x21918, 0x11619, 0x11719, 0x11819, 0x61c1b,
+        0x31919, 0x31919, 0x31919, 0x31919, 0x31919, 0x01a19, 0x31919,
+        0x30519, 0x31919, 0x5191a, 0x5191a, 0x01b1a, 0x01f1a, 0x5191a,
+        0x5191a, 0x5191a, 0x5191a, 0x0231a, 0x61d1c, 0x61e1d, 0x61f1e,
+        0x6201f, 0x62120, 0x62221, 0x71922, 0x11623, 0x11723, 0x11823,
+        0x12a29, 0x31923, 0x31923, 0x31923, 0x31923, 0x02323, 0x01a23,
+        0x31923, 0x30523, 0x02323, 0x12924, 0x12a24, 0x12b24, 0x12b2a,
+        0x32c24, 0x32c24, 0x32c24, 0x32c24, 0x32c24, 0x32c24, 0x02524,
+        0x32c24, 0x02625, 0x22c2b, 0x12e2d, 0x00325, 0x12d26, 0x12e26,
+        0x12f26, 0x12f2e, 0x33026, 0x33026, 0x33026, 0x33026, 0x33026,
+        0x33026, 0x32726, 0x33026, 0x03026, 0x12d27, 0x12e27, 0x12f27,
+        0x2302f, 0x33027, 0x33027, 0x33027, 0x33027, 0x33027, 0x33027,
+        0x32827, 0x33027, 0x33027, 0x12d28, 0x12e28, 0x12f28,       0,
+        0x33028, 0x33028, 0x33028, 0x33028, 0x33028, 0x33028, 0x40728,
+        0x33028, 0x33028, 0x1292c, 0x12a2c, 0x12b2c,       0, 0x32c2c,
+        0x32c2c, 0x32c2c, 0x32c2c, 0x32c2c, 0x32c2c, 0x0072c, 0x32c2c,
+        0x12d30, 0x12e30, 0x12f30,       0, 0x33030, 0x33030, 0x33030,
+        0x33030, 0x33030, 0x33030, 0x32730, 0x33030, 0x33030 
     };
-    static const int NSHIFT = sizeof (SHIFT) / sizeof (SHIFT[0]);
-    static const int MATCH = 0x0e;
+    static const uint32_t MATCH = 14U;
     std::string literal;
     uint32_t uc = 0;
     int mbyte = 1;
@@ -357,7 +347,7 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
             next_state = (SHIFT[j] >> 8) & 0xff;
         else if (0 < m && m < NSHIFT && (SHIFT[m] & 0xff) == prev_state) {
             // else-if hack exclusive ["]["] or ["]["]["]
-            parsed.kind = 1 == ((SHIFT[m] >> 8) & 0xff) ? TOKEN_STRING : TOKEN_STRKEY;
+            parsed.kind = (SHIFT[m] >> 8) & 0xff;
             parsed.literal = literal;
             parsed.s = s;
         }
@@ -419,20 +409,19 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
     return parsed.kind != TOKEN_INVALID;
 }
 
+// generated: `cd grammar; make decoder-parse.cpp`
 bool
 decoder_type::parse (doc_type& doc)
 {
-    enum {
-        NPROD = 40, NSTATE = 65, NGRAMMAR = 330, LRCOL = 30, ACCEPT = 255
-    };
-    static const int BASE[NSTATE] = {
+    enum { NCHECK = 330, ACCEPT = 255 };
+    static const int BASE[65] = {
           0,   0, -13,   4,  -3, -11,   7,  -2,  19,  23,  27,  -3,  37,  39,
          33,  49,  41,  57,  71,  63,  75,   0,  77,  71,  75,  77,  88,  95,
         102, 109, 116, 130, 141,   9,  82, 150,  89,  15,  31, 178,  57, 188,
          37,  98, 105, 202,  37, 204,  39, 150, 196, 232, 235, 250, 252,  41,
-        254,  94, 282, 112, 293, 296, 202, 300, 133, 
+        254,  94, 282, 112, 293, 296, 202, 300, 133 
     };
-    static const int GRAMMAR[NGRAMMAR] = {
+    static const int CHECK[NCHECK] = {
              0, 0x0801, 0x0901, 0xff02, 0x0d05, 0x0803, 0x0903, 0x0c04,
         0x0806, 0x0906, 0x0601, 0x1107, 0x120b, 0xfb04, 0x0603, 0x2315,
         0xfa01, 0x0f06, 0x0201, 0x0401, 0xfc03, 0x0701, 0x0301, 0x0a03,
@@ -474,17 +463,16 @@ decoder_type::parse (doc_type& doc)
              0, 0x3e3a, 0xf33d,      0,      0, 0xf63c, 0xf73f,      0,
         0xf33d,      0, 0x073c, 0x3f3c, 0xf73f, 0x073d,      0,      0,
              0, 0x073f, 0x053c,      0,      0, 0x0b3d,      0,      0,
-             0, 0x0b3f, 
+             0, 0x0b3f 
     };
-    static const int GOTO[NPROD] = {
+    static const int GOTO[40] = {
         17, 18, 18, 18, 18, 19, 19, 19, 19, 19, 19, 19, 19, 20, 20, 21, 21,
         22, 22, 23, 23, 23, 23, 23, 23, 23, 23, 24, 24, 24, 25, 25, 26, 26,
-        27, 27, 27, 28, 28, 29
+        27, 27, 27, 28, 28, 29 
     };
-    static const int NRHS[NPROD] = {
-        11,  2,  1,  1,  0,  6,  5,  8,  7,  5,  4,  7,  6,  3,  1,  1,  1,
-         3,  2,  1,  1,  1,  1,  1,  1,  3,  3,  1,  1,  3,  3,  5,  0,  1,
-         0,  1,  2,  1,  3,  3
+    static const int NRHS[40] = {
+        1, 2, 1, 1, 0, 6, 5, 8, 7, 5, 4, 7, 6, 3, 1, 1, 1, 3, 2, 1, 1, 1, 1,
+        1, 1, 3, 3, 1, 1, 3, 3, 5, 0, 1, 0, 1, 2, 1, 3, 3 
     };
     iter = string.cbegin ();
     kvstate = 0;
@@ -497,8 +485,8 @@ decoder_type::parse (doc_type& doc)
         int prev_state = sstack.back ();        
         int j = BASE[prev_state] + token_type;
         int ctrl = 0;
-        if (0 < j && j < NGRAMMAR && (GRAMMAR[j] & 0xff) == prev_state) {
-            ctrl = GRAMMAR[j] >> 8;
+        if (0 < j && j < NCHECK && (CHECK[j] & 0xff) == prev_state) {
+            ctrl = CHECK[j] >> 8;
         }
         if (! ctrl)
             break;
@@ -584,8 +572,8 @@ decoder_type::parse (doc_type& doc)
             int gprev_state = sstack.back ();
             int g = BASE[gprev_state] + GOTO[prod];
             int gnext_state = 0;
-            if (0 < g && g < NGRAMMAR && (GRAMMAR[g] & 0xff) == gprev_state)
-                gnext_state = GRAMMAR[g] >> 8;
+            if (0 < g && g < NCHECK && (CHECK[g] & 0xff) == gprev_state)
+                gnext_state = CHECK[g] >> 8;
             if (! gnext_state)
                 std::logic_error ("parser: GRAMMAR table error");
             sstack.push_back (gnext_state);

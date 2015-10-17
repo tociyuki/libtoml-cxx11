@@ -17,6 +17,12 @@ node_type::~node_type ()
 {
 }
 
+variation
+node_type::tag () const
+{
+    return doc.at_tag (object_id ());
+}
+
 bool
 node_type::boolean () const
 {
@@ -412,13 +418,12 @@ doc_type::exists (value_id const id, std::string const& key) const
 std::size_t
 doc_type::size (value_id const id) const
 {
-    if (at_tag (id) == VALUE_TABLE)
-        return at_table (id).size ();
-    if (at_tag (id) == VALUE_ARRAY)
-        return at_array (id).size ();
-    if (at_tag (id) == VALUE_STRING)
-        return at_string (id).size ();
-    return 0;
+    switch (at_tag (id)) {
+    case VALUE_TABLE:  return at_table (id).size ();
+    case VALUE_ARRAY:  return at_array (id).size ();
+    case VALUE_STRING: return at_string (id).size ();
+    default: return 0;
+    }
 }
 
 }

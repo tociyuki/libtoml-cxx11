@@ -1,3 +1,9 @@
 *~
 *.o
 example
+grammar/lex-number
+grammar/lex-string
+grammar/grammar
+grammar/scan-number-test
+grammar/scan-string-test
+grammar/decoder-*.cpp
