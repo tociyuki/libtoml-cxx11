@@ -43,7 +43,8 @@
     void
     define_state ()
     {
-        enum { start = 17, toml, sections, keypath, key, statements, value, array, value_list, endln, table, pair_list, pair };
+        enum { start = 17, toml, sections, keypath, key, statements, value,
+            array, value_list, endln, table, pair_list, pair };
 
         to (1, TOKEN_ENDMARK, 250);
         to (1, TOKEN_LBRACKET, 6);
@@ -370,8 +371,16 @@
         to (64, TOKEN_COMMA, 223);
         to (64, TOKEN_RBRACKET, 223);
 
-        nrhs.assign ({1, 2, 1, 1, 0, 6, 5, 8, 7, 5, 4, 7, 6, 3, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 3, 3, 5, 0, 1, 0, 1, 2, 1, 3, 3});
+        nrhs.assign ({1, 2, 1, 1, 0, 6, 5, 8, 7, 5, 4, 7, 6, 3, 1, 1, 1, 3,
+            2, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 3, 3, 5, 0, 1, 0, 1, 2, 1, 3, 3});
 
-        colgoto.assign ({start, toml, toml, toml, toml, sections, sections, sections, sections, sections, sections, sections, sections, keypath, keypath, key, key, statements, statements, value, value, value, value, value, value, value, value, array, array, array, value_list, value_list, endln, endln, table, table, table, pair_list, pair_list, pair});
+        colgoto.assign ({
+            start, toml, toml, toml, toml,
+            sections, sections, sections, sections, sections, sections,
+            sections, sections,
+            keypath, keypath, key, key, statements, statements,
+            value, value, value, value, value, value, value, value,
+            array, array, array, value_list, value_list, endln, endln,
+            table, table, table, pair_list, pair_list, pair});
 
     }
