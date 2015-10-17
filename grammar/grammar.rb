@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+# Toy LALR(1) Parser https://github.com/tociyuki/rzubr-ruby
 require 'rzubr'
 
 def grammar_table
