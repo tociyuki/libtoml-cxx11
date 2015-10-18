@@ -327,6 +327,7 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
                 return false;
             if (0xd800L <= uc && uc <= 0xdfffL)
                 return false;
+            uc = 0;
             literal.push_back (octet);
             break;
         case 3:
