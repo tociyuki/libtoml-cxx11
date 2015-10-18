@@ -6,6 +6,8 @@ example1 ()
 {
     std::string input (
 R"EOS(
+flonum = 1.0
+
 [[products]]
 name = "Hammer"
 sku = 738594937

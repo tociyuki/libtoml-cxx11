@@ -36,10 +36,10 @@ doc_type::encode_quoted (std::string::const_iterator s, std::string::const_itera
                 buf.append (s, s + 4); s += 3;
             }
             else {
-                buf += "\\x";
-                uint32_t const x = code & 15;
+                buf += "\\u00";
+                uint32_t const x = (code >> 4) & 15;
+                uint32_t const y = code & 15;
                 buf.push_back (x < 10 ? x + '0' : x + 'a' - 10);
-                uint32_t const y = (code >> 4) & 15;
                 buf.push_back (y < 10 ? y + '0' : y + 'a' - 10);
             }
             break;
@@ -196,7 +196,7 @@ doc_type::encode_json (std::ostream& out, value_id const x,
         endl.clear ();
     int c = 0;
     switch (at_tag (x)) {
-    case VALUE_NULL: out << "NULL"; break;
+    case VALUE_NULL: out << "null"; break;
     case VALUE_BOOLEAN:
         if (at_boolean (x))
             out << "true";
@@ -204,7 +204,16 @@ doc_type::encode_json (std::ostream& out, value_id const x,
             out << "false";
         break;
     case VALUE_FIXNUM: out << at_fixnum (x); break;
-    case VALUE_FLONUM: out << at_flonum (x); break;
+    case VALUE_FLONUM:
+        {
+            char buf[32];
+            std::snprintf (buf, sizeof(buf)/sizeof(buf[0]), "%.15g", at_flonum (x));
+            std::string s (buf);
+            if (s.find_first_of (".e") == std::string::npos)
+                s += ".0";
+            out << s;
+        }
+        break;
     case VALUE_DATETIME: out << encode_quoted (at_datetime (x)); break;
     case VALUE_STRING: out << encode_quoted (at_string (x)); break;
     case VALUE_ARRAY:
