@@ -12,13 +12,12 @@ Current version does not have a garbage collection.
 Version
 ------
 
-0.0.1
+0.1.0
 
 Build
 -----
 
-    $ make example
-    $ ./example
+    $ make all-test
 
 Clean
 -----

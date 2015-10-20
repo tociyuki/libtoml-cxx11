@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "check-builder.hpp"
-#include "layoutable.hpp"
+#include "../check-builder.hpp"
+#include "../layoutable.hpp"
 
 enum {
     TOKEN_INVALID,
@@ -248,31 +248,8 @@ struct toml_string_type : public layoutable, public check_builder_type {
 };
 
 std::string const layout (R"EOS(
-void
-decoder_type::encode_codepoint (uint32_t const uc, std::string& literal)
-{
-    if (uc < 0x80) {
-        literal.push_back (uc);
-    }
-    else if (uc < 0x800) {
-        literal.push_back (((uc >>  6) & 0xff) | 0xc0);
-        literal.push_back (( uc        & 0x3f) | 0x80);
-    }
-    else if (uc < 0x10000) {
-        literal.push_back (((uc >> 12) & 0x0f) | 0xe0);
-        literal.push_back (((uc >>  6) & 0x3f) | 0x80);
-        literal.push_back (( uc        & 0x3f) | 0x80);
-    }
-    else {
-        literal.push_back (((uc >> 18) & 0x07) | 0xf0);
-        literal.push_back (((uc >> 12) & 0x3f) | 0x80);
-        literal.push_back (((uc >>  6) & 0x3f) | 0x80);
-        literal.push_back (( uc        & 0x3f) | 0x80);
-    }
-}
-
-bool
-decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
+int
+toml_decoder_type::scan_string (value_type& value)
 {
     enum { NSHIFT = @<ncheck@> };
     static const uint32_t LOWERBOUNDS[5] = {0, 0x10000L, 0x0800L, 0x80L};
@@ -287,11 +264,12 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
         @<check@>
     };
     static const uint32_t MATCH = @<match@>U;
-    std::string literal;
+    int kind = TOKEN_INVALID;
+    std::wstring literal;
     uint32_t uc = 0;
     int mbyte = 1;
+    std::string::const_iterator s = iter;
     std::string::const_iterator const e = string.cend ();
-    parsed.kind = TOKEN_INVALID;
     for (int next_state = 1; s <= e; ++s) {
         uint32_t octet = s == e ? '\0' : ord (*s);
         int const cls = s == e ? 0 : lookup_cls (CCLASS, @<nlookup@>U, octet);
@@ -303,9 +281,9 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
             next_state = (SHIFT[j] >> 8) & 0xff;
         else if (0 < m && m < NSHIFT && (SHIFT[m] & 0xff) == prev_state) {
             // else-if hack exclusive ["]["] or ["]["]["]
-            parsed.kind = (SHIFT[m] >> 8) & 0xff;
-            parsed.literal = literal;
-            parsed.s = s;
+            kind = (SHIFT[m] >> 8) & 0xff;
+            value = ::wjson::string (literal);
+            iter = s;
         }
         if (! next_state)
             break;
@@ -319,16 +297,15 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
             case 3: uc = 0x1f & octet; mbyte = cls; break;
             case 4: uc = (uc << 6) | (0x3f & octet); break;
             }
-            literal.push_back (octet);
             break;
         case 2:
             uc = (uc << 6) | (0x3f & octet);
             if (uc < LOWERBOUNDS[mbyte] || UPPERBOUND < uc)
-                return false;
+                return TOKEN_INVALID;
             if (0xd800L <= uc && uc <= 0xdfffL)
-                return false;
+                return TOKEN_INVALID;
+            literal.push_back (uc);
             uc = 0;
-            literal.push_back (octet);
             break;
         case 3:
             literal.push_back (octet);
@@ -346,7 +323,7 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
             case 'r':  literal.push_back ('\r'); break;
             case '\\': literal.push_back ('\\'); break;
             case '"':  literal.push_back ('\"'); break;
-            default: return false;
+            default: return TOKEN_INVALID;
             }
             break;
         case 6:
@@ -355,15 +332,15 @@ decoder_type::scan_string (std::string::const_iterator s, parsed_type& parsed)
         case 7:
             uc = (uc << 4) + hex (octet);
             if ((0xd800L <= uc && uc <= 0xdfffL) || UPPERBOUND < uc)
-                return false;
-            encode_codepoint (uc, literal);
+                return TOKEN_INVALID;
+            literal.push_back (uc);
             uc = 0;
             break;
         default:
             throw std::logic_error ("unexpected lex string action number");
         }
     }
-    return parsed.kind != TOKEN_INVALID;
+    return kind;
 }
 )EOS"
 );

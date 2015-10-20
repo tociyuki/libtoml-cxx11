@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "check-builder.hpp"
-#include "layoutable.hpp"
+#include "../check-builder.hpp"
+#include "../layoutable.hpp"
 
 enum {
     TOKEN_INVALID,
@@ -173,8 +173,8 @@ struct toml_number_type : public layoutable, public check_builder_type {
 };
 
 std::string const layout (R"EOS(
-bool
-decoder_type::scan_number (std::string::const_iterator s, parsed_type& parsed)
+int
+toml_decoder_type::scan_number (value_type& value)
 {
     enum { NSHIFT = @<ncheck@> };
     static const uint32_t CCLASS[@<ncclass@>] = {
@@ -187,8 +187,9 @@ decoder_type::scan_number (std::string::const_iterator s, parsed_type& parsed)
         @<check@>
     };
     static const uint32_t MATCH = @<match@>U;
-    parsed.kind = TOKEN_INVALID;
-    std::string literal;
+    int kind = TOKEN_INVALID;
+    std::wstring literal;
+    std::string::const_iterator s = iter;
     std::string::const_iterator const e = string.cend ();
     for (int next_state = 1; s <= e; ++s) {
         uint32_t octet = s == e ? '\0' : ord (*s);
@@ -202,25 +203,25 @@ decoder_type::scan_number (std::string::const_iterator s, parsed_type& parsed)
         if (next_state && s < e && '_' != octet)
             literal.push_back (octet);
         if (0 < m && m < NSHIFT && (SHIFT[m] & 0xff) == prev_state) {
-            parsed.kind = (SHIFT[m] >> 8) & 0xff;
+            kind = (SHIFT[m] >> 8) & 0xff;
             try {
-                if (TOKEN_FIXNUM == parsed.kind)
-                    parsed.literal_fixnum = std::stoll (literal);
-                else if (TOKEN_FLONUM == parsed.kind)
-                    parsed.literal_flonum = std::stod (literal);
+                if (TOKEN_FIXNUM == kind)
+                    value = ::wjson::fixnum (std::stoll (literal));
+                else if (TOKEN_FLONUM == kind)
+                    value = ::wjson::flonum (std::stod (literal));
+                else
+                    value = ::wjson::datetime (literal);
             }
-            catch (...) {
-                parsed.kind = TOKEN_INVALID;
-                parsed.literal.clear ();
-                return false;
+            catch (std::out_of_range) {
+                value = ::wjson::null ();
+                return TOKEN_INVALID;
             }
-            parsed.literal = literal;
-            parsed.s = s;
+            iter = s;
         }
         if (! next_state)
             break;
     }
-    return TOKEN_INVALID != parsed.kind;
+    return kind;
 }
 )EOS"
 );

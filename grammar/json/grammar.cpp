@@ -2,26 +2,19 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "check-builder.hpp"
-#include "layoutable.hpp"
+#include "../check-builder.hpp"
+#include "../layoutable.hpp"
 
 enum {
     TOKEN_INVALID,
-    TOKEN_BAREKEY,
-    TOKEN_STRKEY,
+    TOKEN_SCALAR,
     TOKEN_STRING,
-    TOKEN_BOOLEAN,
-    TOKEN_FIXNUM,
-    TOKEN_FLONUM,
-    TOKEN_DATETIME,
     TOKEN_LBRACE,
     TOKEN_RBRACE,
     TOKEN_LBRACKET,
     TOKEN_RBRACKET,
-    TOKEN_DOT,
-    TOKEN_EQUAL,
+    TOKEN_COLON,
     TOKEN_COMMA,
-    TOKEN_ENDLINE,
     TOKEN_ENDMARK,
 };
 
@@ -67,7 +60,7 @@ struct toml_grammar_type : public layoutable, public check_builder_type {
 
 std::string const layout (R"EOS(
 bool
-decoder_type::parse (doc_type& doc)
+json_decoder_type::decode (value_type& root)
 {
     enum { NCHECK = @<ncheck@>, ACCEPT = 255 };
     static const int BASE[@<nbase@>] = {
@@ -83,12 +76,11 @@ decoder_type::parse (doc_type& doc)
         @<nrhs@>
     };
     iter = string.cbegin ();
-    kvstate = 0;
-    mark.clear ();
     std::deque<int> sstack {1};
-    std::deque<value_id> dstack {0}; // centinel
-    value_id token_value;
-    int token_type = next_token (doc, token_value);
+    std::deque<value_type> dstack;
+    dstack.emplace_back (); // centinel
+    value_type token_value;
+    int token_type = next_token (token_value);
     for (;;) {
         int prev_state = sstack.back ();        
         int j = BASE[prev_state] + token_type;
@@ -101,76 +93,44 @@ decoder_type::parse (doc_type& doc)
         else if (ctrl < 128) {  // shift
             sstack.push_back (ctrl);
             dstack.push_back (token_value);
-            token_type = next_token (doc, token_value);
+            token_type = next_token (token_value);
         }
         else if (ctrl == ACCEPT) {
-            doc.root = dstack.back ();
+            std::swap (root, dstack.back ());
             return true;
         }
         else {    // reduce
             int prod = 256 - ctrl - 2;
             int nrhs = NRHS[prod];
-            std::deque<value_id>::iterator v = dstack.end () - nrhs - 1;
-            value_id value = nrhs > 0 ? v[1] : 0;
+            std::deque<value_type>::iterator v = dstack.end () - nrhs - 1;
+            value_type value;
             switch (prod) {
-            case 1: // toml: statements sections
-                value = merge_exclusive (doc, v[1], v[2]);
+            case  0: // start: value
+            case  1: // value: SCALAR
+            case  2: // value: STRING
+                std::swap (value, v[1]);
                 break;
-            case 5: // sections: sections "[" keypath "]" ENDLINE statements
-                value = merge_table (doc, v[1], v[3], v[6]);
+            case  3: // value: "[" array "]"
+            case  4: // value: "{" table "}"
+                std::swap (value, v[2]);
                 break;
-            case 6: // sections: sections "[" keypath "]" ENDLINE
-                value = merge_table (doc, v[1], v[3], doc.table ());
+            case  5: // value: "[" "]"
+                value = ::wjson::array ();
                 break;
-            case 7: // sections: sections "[" "[" keypath "]" "]" ENDLINE statements
-                value = merge_array (doc, v[1], v[4], v[8]);
+            case  6: // value: "{" "}"
+                value = ::wjson::table ();
                 break;
-            case 8: // sections: sections "[" "[" keypath "]" "]" ENDLINE
-                value = merge_array (doc, v[1], v[4], doc.table ());
+            case  7: // array: array "," value
+                value = std::move (v[1].push_back (std::move (v[3])));
                 break;
-            case 9: // sections: "[" keypath "]" ENDLINE statements
-                value = merge_table (doc, doc.table (), v[2], v[5]);
+            case  8: // array: value
+                value = ::wjson::array ().push_back (std::move (v[1]));
                 break;
-            case 10: // sections: "[" keypath "]" ENDLINE
-                value = merge_table (doc, doc.table (), v[3], doc.table ());
+            case  9: // table: table "," STRING ":" value
+                value = std::move (v[1].set (v[3], std::move (v[5])));
                 break;
-            case 11: // sections: "[" "[" keypath "]" "]" ENDLINE statements
-                value = merge_array (doc, doc.table (), v[3], v[7]);
-                break;
-            case 12: // sections: "[" "[" keypath "]" "]" ENDLINE
-                value = merge_array (doc, doc.table (), v[3], doc.table ());
-                break;
-            case 13: // keypath: keypath "." key
-                value = doc.set (v[1], doc.size (v[1]), v[3]);
-                break;
-            case 14: // keypath: key
-                value = doc.set (doc.array (), 0, v[1]);
-                break;
-            case 17: // statements: statements pair ENDLINE
-                value = merge_exclusive (doc, v[1], v[2]);
-                break;
-            case 25: // value: "[" array "]"
-                value = v[2];
-                break;
-            case 26: // value: "{" table "}"
-                kvstate = 2;
-                value = v[2];
-                break;
-            case 30: // value_list: endln value endln
-                value = doc.set (doc.array (), 0, v[2]);
-                break;
-            case 31: // value_list: value_list "," endln value endln
-                value = doc.set_unify (v[1], doc.size (v[1]), v[4]);
-                break;
-            case 34: // table:
-                value = doc.table ();
-                break;
-            case 38: // pair_list: pair_list "," pair
-                value = merge_exclusive (doc, v[1], v[3]);
-                break;
-            case 39: // pair: key "=" value
-                kvstate = 1;
-                value = doc.set (doc.table (), doc.at_string (v[1]), v[3]);
+            case 10: // table: STRING ":" value
+                value = ::wjson::table ().set (v[1], std::move (v[3]));
                 break;
             }
             for (int i = 0; i < nrhs; ++i)
@@ -183,7 +143,7 @@ decoder_type::parse (doc_type& doc)
             if (0 < g && g < NCHECK && (CHECK[g] & 0xff) == gprev_state)
                 gnext_state = CHECK[g] >> 8;
             if (! gnext_state)
-                std::logic_error ("parser: GRAMMAR table error");
+                std::logic_error ("json_decoder::decode: grammar table error");
             sstack.push_back (gnext_state);
             dstack.push_back (value);
         }
