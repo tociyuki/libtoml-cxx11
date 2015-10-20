@@ -4,11 +4,6 @@ TOML decoder and encoder
 This is an implementation TOML v0.4.0 decoder and encoder
 written by C++11.
 
-Limitation
----------
-
-Current version does not have a garbage collection.
-
 Version
 ------
 
