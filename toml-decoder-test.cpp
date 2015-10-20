@@ -19,9 +19,8 @@ test_comment (test::simple& ts)
 R"q(# This is a full-line comment
 key = "value" # This is a comment at the end of a line
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode comment");
+    ts.ok (wjson::decode_toml (input, got), "toml decode comment");
     ts.ok (got.size () == 1, "toml decode comment size 1");
     ts.ok (got[L"key"].string () == L"value", "toml decode key=value");
 }
@@ -33,9 +32,8 @@ test_string_1 (test::simple& ts)
 R"q(str = "I'm a string. \"You can quote me\". Name\tJos\u00E9\nLocation\tSF."
 )q");
     std::wstring expected (L"I'm a string. \"You can quote me\". Name\tJos\u00E9\nLocation\tSF.");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode string_1");
+    ts.ok (wjson::decode_toml (input, got), "toml decode string_1");
     ts.ok (got.size () == 1, "toml decode string_1 size 1");
     ts.ok (got[L"str"].string () == expected, "toml decode string_1");
 }
@@ -49,9 +47,8 @@ Roses are red
 Violets are blue"""
 )q");
     std::wstring expected (L"Roses are red\nViolets are blue");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode string_2");
+    ts.ok (wjson::decode_toml (input, got), "toml decode string_2");
     ts.ok (got.size () == 1, "toml decode string_2 size 1");
     ts.ok (got[L"str1"].string () == expected, "toml decode string_2");
 }
@@ -77,9 +74,8 @@ key3 = """\
        """
 )q");
     std::wstring expected (L"The quick brown fox jumps over the lazy dog.");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode string_3");
+    ts.ok (wjson::decode_toml (input, got), "toml decode string_3");
     ts.ok (got.size () == 3, "toml decode string_3 size 3");
     ts.ok (got[L"str1"].string () == expected, "toml decode string_3 str1");
     ts.ok (got[L"str2"].string () == expected, "toml decode string_3 str2");
@@ -96,9 +92,8 @@ winpath2 = '\\ServerX\admin$\system32\'
 quoted   = 'Tom "Dubs" Preston-Werner'
 regex    = '<\i\c*\s*>'
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode string_4");
+    ts.ok (wjson::decode_toml (input, got), "toml decode string_4");
     ts.ok (got.size () == 4, "toml decode string_4 size 4");
     ts.ok (got[L"winpath"].string () == LR"q(C:\Users\nodejs\templates)q",
         "toml decode string_4 winpath");
@@ -129,9 +124,8 @@ trimmed in raw strings.
    is preserved.
 )q"
 );
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode string_5");
+    ts.ok (wjson::decode_toml (input, got), "toml decode string_5");
     ts.ok (got.size () == 2, "toml decode string_5 size 2");
     ts.ok (got[L"regex2"].string () == LR"q(I [dw]on't need \d{2} apples)q",
         "toml decode string_5 regex2");
@@ -148,9 +142,8 @@ int2 = 42
 int3 = 0
 int4 = -17
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode integer_1");
+    ts.ok (wjson::decode_toml (input, got), "toml decode integer_1");
     ts.ok (got.size () == 4, "toml decode integer_1 size 4");
     ts.ok (got[L"int1"].fixnum () == 99LL, "toml decode integer_1 int1");
     ts.ok (got[L"int2"].fixnum () == 42LL, "toml decode integer_1 int2");
@@ -166,9 +159,8 @@ R"q(int5 = 1_000
 int6 = 5_349_221
 int7 = 1_2_3_4_5     # valid but inadvisable
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode integer_2");
+    ts.ok (wjson::decode_toml (input, got), "toml decode integer_2");
     ts.ok (got.size () == 3, "toml decode integer_2 size 3");
     ts.ok (got[L"int5"].fixnum () == 1000LL, "toml decode integer_2 int5");
     ts.ok (got[L"int6"].fixnum () == 5349221LL, "toml decode integer_2 int6");
@@ -195,9 +187,8 @@ flt7 = 6.626e-34
 flt8 = 9_224_617.445_991_228_313
 flt9 = 1e1_00  # change due to 1e1_000 out_of_range
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode float_1");
+    ts.ok (wjson::decode_toml (input, got), "toml decode float_1");
     ts.ok (got.size () == 9, "toml decode float_1 size 9");
     ts.ok (almost (got[L"flt1"].flonum (), 1.0), "toml decode float_1 flt1");
     ts.ok (almost (got[L"flt2"].flonum (), 3.1415), "toml decode float_1 flt2");
@@ -217,9 +208,8 @@ test_boolean (test::simple& ts)
 R"q(bool1 = true
 bool2 = false
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode boolean");
+    ts.ok (wjson::decode_toml (input, got), "toml decode boolean");
     ts.ok (got.size () == 2, "toml decode boolean size 2");
     ts.ok (got[L"bool1"].boolean (), "toml decode boolean bool1");
     ts.ok (! got[L"bool2"].boolean (), "toml decode boolean bool2");
@@ -236,9 +226,8 @@ date4 = 1979-05-27T07:32:00
 date5 = 1979-05-27T00:32:00.999999
 date6 = 1979-05-27
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode datetime");
+    ts.ok (wjson::decode_toml (input, got), "toml decode datetime");
     ts.ok (got.size () == 6, "toml decode datetime size 6");
     ts.ok (got[L"date1"].datetime () == L"1979-05-27T07:32:00Z",
         "toml decode datetime date1");
@@ -260,9 +249,8 @@ test_array_1 (test::simple& ts)
     std::string input (
 R"q(arr1 = [ 1, 2, 3 ]
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode array_1");
+    ts.ok (wjson::decode_toml (input, got), "toml decode array_1");
     ts.ok (got[L"arr1"].tag () == wjson::VALUE_ARRAY, "toml decode array_1 type");
     ts.ok (got[L"arr1"][0].fixnum () == 1, "toml decode array_1 [arr1][0]");
     ts.ok (got[L"arr1"][1].fixnum () == 2, "toml decode array_1 [arr1][1]");
@@ -275,9 +263,8 @@ test_array_2 (test::simple& ts)
     std::string input (
 R"q(arr2 = [ "red", "yellow", "green" ]
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode array_2");
+    ts.ok (wjson::decode_toml (input, got), "toml decode array_2");
     ts.ok (got[L"arr2"].tag () == wjson::VALUE_ARRAY, "toml decode array_2 type");
     ts.ok (got[L"arr2"][0].string () == L"red", "toml decode array_2 [arr2][0]");
     ts.ok (got[L"arr2"][1].string () == L"yellow", "toml decode array_2 [arr2][1]");
@@ -290,9 +277,8 @@ test_array_3 (test::simple& ts)
     std::string input (
 R"q(arr3 = [ [ 1, 2 ], [3, 4, 5] ]
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode array_3");
+    ts.ok (wjson::decode_toml (input, got), "toml decode array_3");
     ts.ok (got[L"arr3"].tag () == wjson::VALUE_ARRAY, "toml decode array_3 type");
     ts.ok (got[L"arr3"][0][0].fixnum () == 1, "toml decode array_3 [arr3][0][0]");
     ts.ok (got[L"arr3"][0][1].fixnum () == 2, "toml decode array_3 [arr3][0][1]");
@@ -307,9 +293,8 @@ test_array_4 (test::simple& ts)
     std::string input (
 R"q(arr4 = [ "all", 'strings', """are the same""", '''type''']
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode array_4");
+    ts.ok (wjson::decode_toml (input, got), "toml decode array_4");
     ts.ok (got[L"arr4"].tag () == wjson::VALUE_ARRAY, "toml decode array_4 type");
     ts.ok (got[L"arr4"][0].string () == L"all", "toml decode array_4 [arr4][0]");
     ts.ok (got[L"arr4"][1].string () == L"strings", "toml decode array_4 [arr4][1]");
@@ -330,9 +315,8 @@ arr8 = [
   2, # this is ok
 ]
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode array_5");
+    ts.ok (wjson::decode_toml (input, got), "toml decode array_5");
     ts.ok (got[L"arr7"].tag () == wjson::VALUE_ARRAY, "toml decode array_5 type");
     ts.ok (got[L"arr7"][0].fixnum () == 1, "toml decode array_5 [arr7][0]");
     ts.ok (got[L"arr7"][1].fixnum () == 2, "toml decode array_5 [arr7][1]");
@@ -355,9 +339,8 @@ bare-key = "value"
 "character encoding" = "value"
 "ʎǝʞ" = "value"
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode table_1");
+    ts.ok (wjson::decode_toml (input, got), "toml decode table_1");
     ts.ok (got[L"table"].tag () == wjson::VALUE_TABLE, "toml decode table_1 type");
     ts.ok (got[L"table"][L"key"].string () == L"value",
         "toml decode table_1 [table][key]");
@@ -382,9 +365,8 @@ test_table_2 (test::simple& ts)
 R"q([dog."tater.man"]
 type = "pug"
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode table_2");
+    ts.ok (wjson::decode_toml (input, got), "toml decode table_2");
     ts.ok (got[L"dog"].tag () == wjson::VALUE_TABLE, "toml decode table_2 type");
     ts.ok (got[L"dog"][L"tater.man"][L"type"].string () == L"pug",
         "toml decode table_2 [dog][tater.man][type]");
@@ -400,9 +382,8 @@ c = 1
 [a]
 d = 2
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode table_3");
+    ts.ok (wjson::decode_toml (input, got), "toml decode table_3");
     ts.ok (got[L"a"].tag () == wjson::VALUE_TABLE, "toml decode table_3 type");
     ts.ok (got[L"a"][L"b"][L"c"].fixnum () == 1,
         "toml decode table_3 [a][b][c]");
@@ -415,9 +396,8 @@ test_inline_table (test::simple& ts)
 R"q(name = { first = "Tom", last = "Preston-Werner" }
 point = { x = 1, y = 2 }
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode inline_table");
+    ts.ok (wjson::decode_toml (input, got), "toml decode inline_table");
     ts.ok (got[L"name"].tag () == wjson::VALUE_TABLE, "toml decode inline_table type");
     ts.ok (got[L"name"][L"first"].string () == L"Tom",
         "toml decode inline_table [name][first]");
@@ -444,9 +424,8 @@ name = "Nail"
 sku = 284758393
 color = "gray"
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode array_of_table_1");
+    ts.ok (wjson::decode_toml (input, got), "toml decode array_of_table_1");
     ts.ok (got[L"products"][0][L"name"].string () == L"Hammer",
         "toml decode array_of_table_1e [products][0][name]");
     ts.ok (got[L"products"][0][L"sku"].fixnum () == 738594937,
@@ -484,9 +463,8 @@ R"q([[fruit]]
   [[fruit.variety]]
     name = "plantain"
 )q");
-    wjson::toml_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "toml decode array_of_table_2");
+    ts.ok (wjson::decode_toml (input, got), "toml decode array_of_table_2");
     ts.ok (got[L"fruit"][0][L"name"].string () == L"apple",
         "toml decode array_of_table_2 [fruit][0][name]");
     ts.ok (got[L"fruit"][0][L"physical"][L"color"].string () == L"red",

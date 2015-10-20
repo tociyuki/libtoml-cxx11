@@ -8,7 +8,6 @@
 void
 test_boolean (test::simple& ts)
 {
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"bool1"] = wjson::boolean (true);
     input[L"bool2"] = wjson::boolean (false);
@@ -18,7 +17,7 @@ test_boolean (test::simple& ts)
     );
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected, "toml encode boolean");
 }
 
@@ -28,7 +27,6 @@ test_fixnum (test::simple& ts)
     int64_t const fixmax = std::numeric_limits<long long>::max ();
     int64_t const fixlowest = std::numeric_limits<long long>::lowest ();
 
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"fix0"] = wjson::fixnum (fixmax);
     input[L"fix1"] = wjson::fixnum (1);
@@ -43,7 +41,7 @@ test_fixnum (test::simple& ts)
              << "fix4=" << fixlowest << "\n";
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected.str (), "toml encode fixnum");
 }
 
@@ -53,7 +51,6 @@ test_flonum (test::simple& ts)
     double const flomax = std::numeric_limits<double>::max ();
     double const flolowest = std::numeric_limits<double>::lowest ();
 
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"fix0"] = wjson::flonum (flomax);
     input[L"fix1"] = wjson::flonum (1);
@@ -71,14 +68,13 @@ test_flonum (test::simple& ts)
     expected << "fix4=" << buf << "\n";
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected.str (), "toml encode flonum");
 }
 
 void
 test_datetime (test::simple& ts)
 {
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"date"] = wjson::datetime (L"2015-10-18T01:02:45Z");
     std::string expected (
@@ -86,7 +82,7 @@ test_datetime (test::simple& ts)
     );
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected, "toml encode datetime");
 }
 
@@ -98,7 +94,6 @@ test_string (test::simple& ts)
     for (int c = 0; c < 128; ++c)
         ascii.push_back (c);
 
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"str1"] = L"";
     input[L"str2"] = ascii;
@@ -117,14 +112,13 @@ test_string (test::simple& ts)
     );
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected, "toml encode string");
 }
 
 void
 test_array_1 (test::simple& ts)
 {
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"a"] = wjson::array ();
     input[L"b"][0] = wjson::boolean (false);
@@ -138,14 +132,13 @@ test_array_1 (test::simple& ts)
     );
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected, "toml encode array_1");    
 }
 
 void
 test_array_2 (test::simple& ts)
 {
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"a"][0][0] = L"lambda";
     input[L"a"][0][1][0] = L"x";
@@ -161,14 +154,13 @@ test_array_2 (test::simple& ts)
     );
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected, "toml encode array_2");    
 }
 
 void
 test_table_1 (test::simple& ts)
 {
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"a"] = wjson::table ();
     input[L"b"][L"bool"] = wjson::boolean (false);
@@ -190,14 +182,13 @@ string="four"
     );
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected, "toml encode table_1");
 }
 
 void
 test_table_2 (test::simple& ts)
 {
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"a"][L"a0"] = L"A0";
     input[L"a"][L"a1"] = L"A1";
@@ -222,14 +213,13 @@ c00="C1"
     );
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected, "toml encode table_2");
 }
 
 void
 test_fruit (test::simple& ts)
 {
-    wjson::toml_encoder_type toml_encoder;
     wjson::value_type input = wjson::table ();
     input[L"fruit"][0][L"name"] = L"apple";
     input[L"fruit"][0][L"physical"][L"color"] = L"red";
@@ -262,7 +252,7 @@ name="plantain"
     );
 
     std::ostringstream got;
-    toml_encoder.encode (got, input);
+    wjson::encode_toml (got, input);
     ts.ok (got.str () == expected, "toml encode fruit");
 }
 

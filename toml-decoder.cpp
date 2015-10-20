@@ -27,6 +27,36 @@ enum {
     TOKEN_ENDMARK,
 };
 
+class toml_decoder_type {
+public:
+    toml_decoder_type (std::string const& str);
+    bool decode (value_type& root);
+private:
+    int kvstate;
+    std::string const& string;
+    std::string::const_iterator iter;
+    std::map<std::wstring,int> mark;
+
+    int next_token (value_type& value);
+    int scan_key (value_type& value);
+    int scan_value (value_type& value);
+    int scan_string (value_type& value);
+    int scan_number (value_type& value);
+
+    value_type& merge_exclusive (value_type& x, value_type const& y);
+    value_type& merge_table (value_type& x, value_type const& path, value_type const& y);
+    value_type& merge_array (value_type& x, value_type const& path, value_type const& y);
+    value_type& unify_back (value_type& x, value_type const& y);
+    std::wstring path_to_string (value_type const& path);
+};
+
+bool
+decode_toml (std::string const& str, value_type& root)
+{
+    toml_decoder_type decoder (str);
+    return decoder.decode (root);
+}
+
 static inline int
 lookup_cls (uint32_t const tbl[], std::size_t const n, uint32_t const octet)
 {

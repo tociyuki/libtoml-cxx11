@@ -8,8 +8,20 @@
 
 namespace wjson {
 
+static void encode_section (std::ostream& out, value_type const& value,
+    std::vector<std::wstring>& path);
+static void encode_path (std::ostream& out,
+    char const* lft, std::vector<std::wstring>& path, char const* rgt);
+static void encode_table (std::ostream& out,
+    value_type const& value, std::vector<std::wstring>& path);
+static void encode_key (std::ostream& out, std::wstring const& key);
+static void encode_flow (std::ostream& out, value_type const& value);
+static void encode_flonum (std::ostream& out, double const x);
+static void encode_string (std::ostream& out, std::wstring const& str);
+static void encode_bare (std::ostream& out, std::wstring const& str);
+
 std::string
-toml_encoder_type::encode (value_type const& root) const
+encode_toml (value_type const& root)
 {
     std::ostringstream got;
     std::vector<std::wstring> path;
@@ -18,15 +30,15 @@ toml_encoder_type::encode (value_type const& root) const
 }
 
 void
-toml_encoder_type::encode (std::ostream& out, value_type const& root) const
+encode_toml (std::ostream& out, value_type const& root)
 {
     std::vector<std::wstring> path;
     encode_section (out, root, path);
 }
 
-void
-toml_encoder_type::encode_section (std::ostream& out, value_type const& value,
-    std::vector<std::wstring>& path) const
+static void
+encode_section (std::ostream& out, value_type const& value,
+    std::vector<std::wstring>& path)
 {
     if (value.tag () == VALUE_TABLE) {
         encode_path (out, "\n[", path, "]\n");
@@ -40,9 +52,9 @@ toml_encoder_type::encode_section (std::ostream& out, value_type const& value,
     }
 }
 
-void
-toml_encoder_type::encode_path (std::ostream& out,
-    char const* lft, std::vector<std::wstring>& path, char const* rgt) const
+static void
+encode_path (std::ostream& out,
+    char const* lft, std::vector<std::wstring>& path, char const* rgt)
 {
     if (path.empty ())
         return;
@@ -55,9 +67,9 @@ toml_encoder_type::encode_path (std::ostream& out,
     out << rgt;
 }
 
-void
-toml_encoder_type::encode_table (std::ostream& out,
-    value_type const& value, std::vector<std::wstring>& path) const
+static void
+encode_table (std::ostream& out,
+    value_type const& value, std::vector<std::wstring>& path)
 {
     for (auto x : value.table ()) {
         if (x.second.tag () != VALUE_TABLE && x.second.tag () != VALUE_ARRAY) {
@@ -87,8 +99,8 @@ toml_encoder_type::encode_table (std::ostream& out,
     }
 }
 
-void
-toml_encoder_type::encode_key (std::ostream& out, std::wstring const& key) const
+static void
+encode_key (std::ostream& out, std::wstring const& key)
 {
     bool barekey = true;
     for (int c : key) {
@@ -105,15 +117,15 @@ toml_encoder_type::encode_key (std::ostream& out, std::wstring const& key) const
         encode_string (out, key);
 }
 
-void
-toml_encoder_type::encode_bare (std::ostream& out, std::wstring const& key) const
+static void
+encode_bare (std::ostream& out, std::wstring const& key)
 {
     for (int c : key)
         out.put (c);
 }
 
-void
-toml_encoder_type::encode_flow (std::ostream& out, value_type const& value) const
+static void
+encode_flow (std::ostream& out, value_type const& value)
 {
     int c = 0;
     switch (value.tag ()) {
@@ -152,8 +164,8 @@ toml_encoder_type::encode_flow (std::ostream& out, value_type const& value) cons
     }
 }
 
-void
-toml_encoder_type::encode_flonum (std::ostream& out, double const x) const
+static void
+encode_flonum (std::ostream& out, double const x)
 {
     char buf[32];
     std::snprintf (buf, sizeof (buf) / sizeof (buf[0]), "%.15g", x);
@@ -163,8 +175,8 @@ toml_encoder_type::encode_flonum (std::ostream& out, double const x) const
     out << t;
 }
 
-void
-toml_encoder_type::encode_string (std::ostream& out, std::wstring const& str) const
+static void
+encode_string (std::ostream& out, std::wstring const& str)
 {
     out.put ('"');
     for (std::wstring::const_iterator s = str.cbegin (); s < str.cend (); ++s) {

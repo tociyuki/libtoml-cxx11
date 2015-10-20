@@ -20,6 +20,26 @@ enum {
     TOKEN_ENDMARK,
 };
 
+class json_decoder_type {
+public:
+    json_decoder_type (std::string const& str);
+    bool decode (value_type& root);
+private:
+    std::string const& string;
+    std::string::const_iterator iter;
+
+    int next_token (value_type& value);
+    int scan_string (value_type& value);
+    int scan_number (value_type& value);
+};
+
+bool
+decode_json (std::string const& str, value_type& root)
+{
+    json_decoder_type decoder (str);
+    return decoder.decode (root);
+}
+
 static inline int
 lookup_cls (uint32_t const tbl[], std::size_t const n, uint32_t const octet)
 {

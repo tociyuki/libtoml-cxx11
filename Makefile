@@ -8,6 +8,8 @@ TESTS=value-test \
 CXX=clang++ -std=c++11
 CXXFLAGS=-Wall
 
+all : value.o setter.o json-encoder.o json-decoder.o toml-encoder.o toml-decoder.o
+
 value.o : value.hpp value.cpp
 	$(CXX) $(CXXFLAGS) -o value.o -c value.cpp
 
@@ -19,6 +21,9 @@ json-encoder.o : value.hpp json.hpp json-encoder.cpp
 
 json-decoder.o : value.hpp json.hpp json-decoder.cpp
 	$(CXX) $(CXXFLAGS) -o json-decoder.o -c json-decoder.cpp
+
+toml-encoenr.o : value.hpp toml.hpp toml-encoenr.cpp
+	$(CXX) $(CXXFLAGS) -o toml-encoenr.o -c toml-encoenr.cpp
 
 toml-decoder.o : value.hpp toml.hpp toml-decoder.cpp
 	$(CXX) $(CXXFLAGS) -o toml-decoder.o -c toml-decoder.cpp

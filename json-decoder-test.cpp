@@ -16,9 +16,8 @@ void
 test_null (test::simple& ts)
 {
     std::string input ("null");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode null");
+    ts.ok (wjson::decode_json (input, got), "json decode null");
     ts.ok (got.tag () == wjson::VALUE_NULL, "json decode null null");
 }
 
@@ -26,9 +25,8 @@ void
 test_true (test::simple& ts)
 {
     std::string input ("true");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode true");
+    ts.ok (wjson::decode_json (input, got), "json decode true");
     ts.ok (got.tag () == wjson::VALUE_BOOLEAN, "json decode true boolean");
     ts.ok (got.boolean (), "json decode true value");
 }
@@ -37,9 +35,8 @@ void
 test_false (test::simple& ts)
 {
     std::string input ("false");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode false");
+    ts.ok (wjson::decode_json (input, got), "json decode false");
     ts.ok (got.tag () == wjson::VALUE_BOOLEAN, "json decode false boolean");
     ts.ok (! got.boolean (), "json decode false value");
 }
@@ -48,9 +45,8 @@ void
 test_fixnum_zero (test::simple& ts)
 {
     std::string input ("0");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode 0");
+    ts.ok (wjson::decode_json (input, got), "json decode 0");
     ts.ok (got.tag () == wjson::VALUE_FIXNUM, "json decode 0 fixnum");
     ts.ok (got.fixnum () == 0, "json decode 0 value");
 }
@@ -59,9 +55,8 @@ void
 test_fixnum_one (test::simple& ts)
 {
     std::string input ("1");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode 1");
+    ts.ok (wjson::decode_json (input, got), "json decode 1");
     ts.ok (got.tag () == wjson::VALUE_FIXNUM, "json decode 1 fixnum");
     ts.ok (got.fixnum () == 1, "json decode 1 value");
 }
@@ -70,9 +65,8 @@ void
 test_fixnum_negative_one (test::simple& ts)
 {
     std::string input ("-1");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode -1");
+    ts.ok (wjson::decode_json (input, got), "json decode -1");
     ts.ok (got.tag () == wjson::VALUE_FIXNUM, "json decode -1 fixnum");
     ts.ok (got.fixnum () == -1, "json decode -1 value");
 }
@@ -82,9 +76,8 @@ test_fixnum_max (test::simple& ts)
 {
     int64_t const fixmax = std::numeric_limits<long long>::max ();
     std::string input = std::to_string (fixmax);
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode " + input);
+    ts.ok (wjson::decode_json (input, got), "json decode " + input);
     ts.ok (got.tag () == wjson::VALUE_FIXNUM, "json decode " + input + " fixnum");
     ts.ok (got.fixnum () == fixmax, "json decode " + input + " value");
 }
@@ -94,9 +87,8 @@ test_fixnum_lowest (test::simple& ts)
 {
     int64_t const fixlowest = std::numeric_limits<long long>::lowest ();
     std::string input = std::to_string (fixlowest);
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode " + input);
+    ts.ok (wjson::decode_json (input, got), "json decode " + input);
     ts.ok (got.tag () == wjson::VALUE_FIXNUM, "json decode " + input + " fixnum");
     ts.ok (got.fixnum () == fixlowest, "json decode " + input + " value");
 }
@@ -105,9 +97,8 @@ void
 test_flonum_zero (test::simple& ts)
 {
     std::string input ("0.0");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode 0.0");
+    ts.ok (wjson::decode_json (input, got), "json decode 0.0");
     ts.ok (got.tag () == wjson::VALUE_FLONUM, "json decode 0.0 flonum");
     ts.ok (almost (got.flonum (), 0.0), "json decode 0.0 value");
 }
@@ -116,9 +107,8 @@ void
 test_flonum_one (test::simple& ts)
 {
     std::string input ("1.0");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode 1.0");
+    ts.ok (wjson::decode_json (input, got), "json decode 1.0");
     ts.ok (got.tag () == wjson::VALUE_FLONUM, "json decode 1.0 flonum");
     ts.ok (almost (got.flonum (), 1.0), "json decode 1.0 value");
 }
@@ -127,9 +117,8 @@ void
 test_flonum_negative_one (test::simple& ts)
 {
     std::string input ("-1.0");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode -1.0");
+    ts.ok (wjson::decode_json (input, got), "json decode -1.0");
     ts.ok (got.tag () == wjson::VALUE_FLONUM, "json decode -1.0 flonum");
     ts.ok (almost (got.flonum (), -1.0), "json decode -1.0 value");
 }
@@ -138,9 +127,8 @@ void
 test_flonum_pi (test::simple& ts)
 {
     std::string input ("3.1415926535897932");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode 3.1415926535897932");
+    ts.ok (wjson::decode_json (input, got), "json decode 3.1415926535897932");
     ts.ok (got.tag () == wjson::VALUE_FLONUM, "json decode 3.1415926535897932 flonum");
     ts.ok (almost (got.flonum (), 3.1415926535897932), "json decode 3.1415926535897932 value");
 }
@@ -149,9 +137,8 @@ void
 test_flonum_g (test::simple& ts)
 {
     std::string input ("6.67259e-11");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode 6.67259e-11");
+    ts.ok (wjson::decode_json (input, got), "json decode 6.67259e-11");
     ts.ok (got.tag () == wjson::VALUE_FLONUM, "json decode 6.67259e-11 flonum");
     ts.ok (almost (got.flonum (), 6.67259e-11), "json decode 6.67259e-11 value");
 }
@@ -160,9 +147,8 @@ void
 test_flonum_e30 (test::simple& ts)
 {
     std::string input ("123456789012345678901234567890");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode 123456789012345678901234567890");
+    ts.ok (wjson::decode_json (input, got), "json decode 123456789012345678901234567890");
     ts.ok (got.tag () == wjson::VALUE_FLONUM,
         "json decode 123456789012345678901234567890 flonum");
     ts.ok (almost (got.flonum (), 123456789012345678901234567890.0),
@@ -173,18 +159,16 @@ void
 test_flonum_out_of_range (test::simple& ts)
 {
     std::string input ("1.0e2000");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (! de.decode (got), "fail json decode 1.0e2000");
+    ts.ok (! wjson::decode_json (input, got), "fail json decode 1.0e2000");
 }
 
 void
 test_string_empty (test::simple& ts)
 {
     std::string input (R"q("")q");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode \"\"");
+    ts.ok (wjson::decode_json (input, got), "json decode \"\"");
     ts.ok (got.tag () == wjson::VALUE_STRING, "json decode \"\" string");
     ts.ok (got.string () == L"", "json decode \"\" value");
 }
@@ -203,9 +187,8 @@ test_string_ascii (test::simple& ts)
     std::wstring expected;
     for (int c = 0; c < 128; ++c)
         expected.push_back (c);
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode ascii");
+    ts.ok (wjson::decode_json (input, got), "json decode ascii");
     ts.ok (got.tag () == wjson::VALUE_STRING, "json decode ascii string");
     ts.ok (got.string () == expected, "json decode ascii value");
 }
@@ -214,9 +197,8 @@ void
 test_string_mbyte (test::simple& ts)
 {
     std::string input (u8R"q("いろはに")q");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode mbyte");
+    ts.ok (wjson::decode_json (input, got), "json decode mbyte");
     ts.ok (got.tag () == wjson::VALUE_STRING, "json decode mbyte string");
     ts.ok (got.string () == L"いろはに", "json decode mbyte value");
 }
@@ -226,9 +208,8 @@ test_string_surrogate_pair (test::simple& ts)
 {
     std::string input (R"q("\u0033\u0020\uD834\uDD1E")q");
     std::wstring expected (L"3 \U0001d11e");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode surrogate");
+    ts.ok (wjson::decode_json (input, got), "json decode surrogate");
     ts.ok (got.string () == expected, "json decode surrogate");
 }
 
@@ -236,9 +217,8 @@ void
 test_array_empty (test::simple& ts)
 {
     std::string input (R"q([])q");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode []");
+    ts.ok (wjson::decode_json (input, got), "json decode []");
     ts.ok (got.tag () == wjson::VALUE_ARRAY, "json decode [] array");
     ts.ok (got.size () == 0, "json decode [] size");
 }
@@ -247,9 +227,8 @@ void
 test_array_flat (test::simple& ts)
 {
     std::string input (R"q([false,1,2.0,"2015-10-18T01:32:57Z","four"])q");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode array flat");
+    ts.ok (wjson::decode_json (input, got), "json decode array flat");
     ts.ok (got.tag () == wjson::VALUE_ARRAY, "json decode array flat array");
     ts.ok (got.size () == 5, "json decode array flat size");
     ts.ok (got[0].tag () == wjson::VALUE_BOOLEAN,
@@ -266,9 +245,8 @@ void
 test_array_nest (test::simple& ts)
 {
     std::string input (R"q([["lambda",["x","y"],["cons","x","y"]],"a",["b","c"]])q");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode array nest");
+    ts.ok (wjson::decode_json (input, got), "json decode array nest");
     ts.ok (got[0][0].string () == L"lambda", "json decode array nest [0][0]");
     ts.ok (got[0][1][0].string () == L"x", "json decode array nest [0][1][0]");
     ts.ok (got[0][1][1].string () == L"y", "json decode array nest [0][1][1]");
@@ -284,9 +262,8 @@ void
 test_table_empty (test::simple& ts)
 {
     std::string input (R"q({})q");
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode {}");
+    ts.ok (wjson::decode_json (input, got), "json decode {}");
     ts.ok (got.tag () == wjson::VALUE_TABLE, "json decode {} table");
     ts.ok (got.size () == 0, "json decode {} size");
 }
@@ -298,9 +275,8 @@ test_table_flat (test::simple& ts)
     R"q({"bool":false,"datetime":"2015-10-18T01:32:57Z",)q"
     R"q("fixnum":1,"flonum":2.0,"string":"four"})q"
     );
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode table flat");
+    ts.ok (wjson::decode_json (input, got), "json decode table flat");
     ts.ok (got.size () == 5, "json decode table flat size");
     ts.ok (! got[L"bool"].boolean (), "json decode table flat [bool]");
     ts.ok (got[L"datetime"].string () == L"2015-10-18T01:32:57Z",
@@ -318,9 +294,8 @@ test_table_nest (test::simple& ts)
     R"q({"a":{"a0":"A0","a1":"A1"},"b":"B",)q"
     R"q("c":{"c0":{"c00":"C0"},"c1":{"c00":"C1"}}})q"
     );
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode table nest");
+    ts.ok (wjson::decode_json (input, got), "json decode table nest");
     ts.ok (got[L"a"][L"a0"].string () == L"A0", "json decode table nest [a][a0]");
     ts.ok (got[L"a"][L"a1"].string () == L"A1", "json decode table nest [a][a1]");
     ts.ok (got[L"b"].string () == L"B", "json decode table nest [b]");
@@ -362,9 +337,8 @@ R"q({
   ]
 })q"
     );
-    wjson::json_decoder_type de (input);
     wjson::value_type got;
-    ts.ok (de.decode (got), "json decode fruit");
+    ts.ok (wjson::decode_json (input, got), "json decode fruit");
     ts.ok (got[L"fruit"][0][L"name"].string () == L"apple",
         "json decode [fruit][0][name]");
     ts.ok (got[L"fruit"][0][L"physical"][L"color"].string () == L"red",

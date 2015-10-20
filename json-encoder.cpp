@@ -7,17 +7,20 @@
 
 namespace wjson {
 
+static void encode_flonum (std::ostream& out, double const x);
+static void encode_string (std::ostream& out, std::wstring const& str);
+
 std::string
-json_encoder_type::encode (value_type const& value, int const padding, int const margin) const
+encode_json (value_type const& value, int const padding, int const margin)
 {
     std::ostringstream got;
-    encode (got, value, padding, margin);
+    encode_json (got, value, padding, margin);
     return got.str ();
 }
 
 void
-json_encoder_type::encode (std::ostream& out, value_type const& value,
-    int const padding, int const margin) const
+encode_json (std::ostream& out, value_type const& value,
+    int const padding, int const margin)
 {
     std::string indent (margin, ' ');
     std::string nest (margin + padding, ' ');
@@ -45,7 +48,7 @@ json_encoder_type::encode (std::ostream& out, value_type const& value,
                 if (count++ > 0)
                     out << "," << endl;
                 out << nest;
-                encode (out, x, padding, margin + padding);
+                encode_json (out, x, padding, margin + padding);
             }
             out << endl << indent << "]";
         }
@@ -61,7 +64,7 @@ json_encoder_type::encode (std::ostream& out, value_type const& value,
                 out << nest;
                 encode_string (out, x.first);
                 out << ":" << space;
-                encode (out, x.second, padding, margin + padding);
+                encode_json (out, x.second, padding, margin + padding);
             }
             out << endl << indent << "}";
         }
@@ -69,8 +72,8 @@ json_encoder_type::encode (std::ostream& out, value_type const& value,
     }
 }
 
-void
-json_encoder_type::encode_flonum (std::ostream& out, double const x) const
+static void
+encode_flonum (std::ostream& out, double const x)
 {
     char buf[32];
     std::snprintf (buf, sizeof (buf) / sizeof (buf[0]), "%.15g", x);
@@ -80,8 +83,8 @@ json_encoder_type::encode_flonum (std::ostream& out, double const x) const
     out << t;
 }
 
-void
-json_encoder_type::encode_string (std::ostream& out, std::wstring const& str) const
+static void
+encode_string (std::ostream& out, std::wstring const& str)
 {
     out.put ('"');
     for (std::wstring::const_iterator s = str.cbegin (); s < str.cend (); ++s) {
