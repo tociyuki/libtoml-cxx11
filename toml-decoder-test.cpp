@@ -483,7 +483,7 @@ R"q([[fruit]]
 
 int main ()
 {
-    test::simple ts;
+    test::simple ts (124);
     test_comment (ts);
     test_string_1 (ts);
     test_string_2 (ts);

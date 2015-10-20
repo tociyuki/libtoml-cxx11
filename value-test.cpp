@@ -63,7 +63,7 @@ wjson_value_test (test::simple& ts)
 int
 main ()
 {
-    test::simple ts;
+    test::simple ts (38);
 
     wjson_value_test (ts);
 

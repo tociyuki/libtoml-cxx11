@@ -1,14 +1,24 @@
+OBJS=value.o \
+     setter.o \
+     json-encoder.o \
+     json-decoder.o \
+     toml-encoder.o \
+     toml-decoder.o \
+     encode-utf8.o \
+     mustache.o
+
 TESTS=value-test \
       setter-test \
       json-encoder-test \
       json-decoder-test \
       toml-encoder-test \
-      toml-decoder-test
+      toml-decoder-test \
+      mustache-test
 
 CXX=clang++ -std=c++11
-CXXFLAGS=-Wall
+CXXFLAGS=-Wall -O2
 
-all : value.o setter.o json-encoder.o json-decoder.o toml-encoder.o toml-decoder.o
+all : $(OBJS)
 
 value.o : value.hpp value.cpp
 	$(CXX) $(CXXFLAGS) -o value.o -c value.cpp
@@ -27,6 +37,12 @@ toml-encoenr.o : value.hpp toml.hpp toml-encoenr.cpp
 
 toml-decoder.o : value.hpp toml.hpp toml-decoder.cpp
 	$(CXX) $(CXXFLAGS) -o toml-decoder.o -c toml-decoder.cpp
+
+encode-utf8.o : value.hpp toml.hpp encode-utf8.cpp
+	$(CXX) $(CXXFLAGS) -o encode-utf8.o -c encode-utf8.cpp
+
+mustache.o : value.hpp toml.hpp mustache.cpp
+	$(CXX) $(CXXFLAGS) -o mustache.o -c mustache.cpp
 
 all-test : $(TESTS)
 
@@ -47,6 +63,9 @@ toml-encoder-test: value.o setter.o toml-encoder.o toml-encoder-test.cpp
 
 toml-decoder-test: value.o setter.o toml-decoder.o toml-decoder-test.cpp
 	$(CXX) $(CXXFLAGS) -o toml-decoder-test toml-decoder-test.cpp value.o setter.o toml-decoder.o
+
+mustache-test: value.o setter.o json-decoder.o encode-utf8.o mustache.o mustache-test.cpp
+	$(CXX) $(CXXFLAGS) -o mustache-test mustache-test.cpp value.o setter.o json-decoder.o encode-utf8.o mustache.o
 
 clean :
 	rm -fr *-test *.o

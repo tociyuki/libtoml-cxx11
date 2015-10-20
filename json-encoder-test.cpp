@@ -393,7 +393,7 @@ R"q({
 int
 main ()
 {
-    test::simple ts;
+    test::simple ts (26);
 
     test_null (ts);
 

@@ -259,7 +259,7 @@ name="plantain"
 int
 main ()
 {
-    test::simple ts;
+    test::simple ts (10);
 
     test_boolean (ts);
     test_fixnum (ts);

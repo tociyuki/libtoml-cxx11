@@ -90,7 +90,7 @@ fruit_test (test::simple& ts)
 int
 main ()
 {
-    test::simple ts;
+    test::simple ts (32);
 
     wjson_setter_test (ts);
     fruit_test (ts);

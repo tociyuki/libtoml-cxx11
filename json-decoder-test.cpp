@@ -357,7 +357,8 @@ R"q({
 
 int main ()
 {
-    test::simple ts;
+    test::simple ts (99);
+
     test_null (ts);
     test_true (ts);
     test_false (ts);
@@ -384,5 +385,6 @@ int main ()
     test_table_flat (ts);
     test_table_nest (ts);
     test_table_fluit (ts);
+
     return ts.done_testing ();
 }
