@@ -4,6 +4,7 @@ OBJS=value.o \
      json-decoder.o \
      toml-encoder.o \
      toml-decoder.o \
+     yaml-decoder.o \
      encode-utf8.o \
      mustache.o
 
@@ -13,6 +14,7 @@ TESTS=value-test \
       json-decoder-test \
       toml-encoder-test \
       toml-decoder-test \
+      yaml-decoder-test \
       mustache-test
 
 CXX=clang++ -std=c++11
@@ -32,11 +34,14 @@ json-encoder.o : value.hpp json.hpp json-encoder.cpp
 json-decoder.o : value.hpp json.hpp json-decoder.cpp
 	$(CXX) $(CXXFLAGS) -o json-decoder.o -c json-decoder.cpp
 
-toml-encoenr.o : value.hpp toml.hpp toml-encoenr.cpp
-	$(CXX) $(CXXFLAGS) -o toml-encoenr.o -c toml-encoenr.cpp
+toml-encoder.o : value.hpp toml.hpp toml-encoder.cpp
+	$(CXX) $(CXXFLAGS) -o toml-encoder.o -c toml-encoder.cpp
 
 toml-decoder.o : value.hpp toml.hpp toml-decoder.cpp
 	$(CXX) $(CXXFLAGS) -o toml-decoder.o -c toml-decoder.cpp
+
+yaml-decoder.o : value.hpp yaml.hpp yaml-decoder.cpp
+	$(CXX) $(CXXFLAGS) -o yaml-decoder.o -c yaml-decoder.cpp
 
 encode-utf8.o : value.hpp toml.hpp encode-utf8.cpp
 	$(CXX) $(CXXFLAGS) -o encode-utf8.o -c encode-utf8.cpp
@@ -64,8 +69,11 @@ toml-encoder-test: value.o setter.o toml-encoder.o toml-encoder-test.cpp
 toml-decoder-test: value.o setter.o toml-decoder.o toml-decoder-test.cpp
 	$(CXX) $(CXXFLAGS) -o toml-decoder-test toml-decoder-test.cpp value.o setter.o toml-decoder.o
 
-mustache-test: value.o setter.o json-decoder.o encode-utf8.o mustache.o mustache-test.cpp
-	$(CXX) $(CXXFLAGS) -o mustache-test mustache-test.cpp value.o setter.o json-decoder.o encode-utf8.o mustache.o
+yaml-decoder-test: value.o setter.o encode-utf8.o json-encoder.o yaml-decoder.o yaml-decoder-test.cpp
+	$(CXX) $(CXXFLAGS) -o yaml-decoder-test yaml-decoder-test.cpp value.o setter.o encode-utf8.o json-encoder.o yaml-decoder.o
+
+mustache-test: value.o setter.o json-decoder.o json-encoder.o encode-utf8.o mustache.o mustache-test.cpp
+	$(CXX) $(CXXFLAGS) -o mustache-test mustache-test.cpp value.o setter.o json-decoder.o json-encoder.o encode-utf8.o mustache.o
 
 clean :
 	rm -fr *-test *.o

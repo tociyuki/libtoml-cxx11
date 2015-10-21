@@ -1,8 +1,11 @@
 TOML decoder and encoder
 ========================
 
-This is an implementation TOML v0.4.0 decoder and encoder
+This is an implementation TOML v0.4.0 decoder/encoder
 written by C++11.
+This also is includes RFC 7159 JSON decoder/encoder,
+a mini-set of YAML 1.2 decoder for JSON values,
+and a subset of Mustache template processor.
 
 Version
 ------
@@ -19,7 +22,7 @@ Clean
 
     $ make clean
 
-Grammar
+TOML Grammar
 ------
 
     toml    :
