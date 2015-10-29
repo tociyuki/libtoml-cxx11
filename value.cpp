@@ -185,12 +185,36 @@ value_type::operator[] (std::wstring const& key)
     return setter_type (*this, key);
 }
 
+bool
+value_type::exists (value_type const& k) const
+{
+    if (mtag == VALUE_TABLE && k.mtag == VALUE_STRING)
+        return mtable.count (k.mstring) > 0;
+    throw std::out_of_range ("value_type::exists(value)const: invalid");
+}
+
+bool
+value_type::exists (std::size_t const idx) const
+{
+    if (mtag == VALUE_ARRAY)
+        return idx < marray.size ();
+    throw std::out_of_range ("value_type::exists(idx)const: not array");
+}
+
+bool
+value_type::exists (std::wstring const& key) const
+{
+    if (mtag == VALUE_TABLE)
+        return mtable.count (key) > 0;
+    throw std::out_of_range ("value_type::exists(key)const: invalid");
+}
+
 value_type const&
 value_type::get (value_type const& k) const
 {
     if (mtag == VALUE_TABLE && k.mtag == VALUE_STRING)
         return mtable.at (k.mstring);
-    throw std::out_of_range ("value_type::get(value)const: invalid");    
+    throw std::out_of_range ("value_type::get(value)const: invalid");
 }
 
 value_type&

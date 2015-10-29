@@ -225,7 +225,7 @@ ns_l_compact_sequence (derivs_type& s0, int const n, value_type& value)
     derivs_type s = s0;
     if (! s.scan ("-%b"))
         return s0.fail ();
-    value = ::wjson::array ();;
+    value = ::wjson::array ();
     value_type item;
     if (! s_l_block_indented (s, n, BLOCK_IN, item))
         return s0.fail ();

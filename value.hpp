@@ -52,6 +52,7 @@ public:
     array_value_type const& array () const;
     table_value_type const& table () const;
     value_type* lookup () const;
+    bool exists () const;
 
 private:
     value_type* force ();
@@ -86,6 +87,9 @@ public:
     setter_type operator[] (std::size_t idx);
     setter_type operator[] (std::wstring const& k);
 
+    bool exists (value_type const& k) const;
+    bool exists (std::size_t const idx) const;
+    bool exists (std::wstring const& key) const;
     value_type const& get (value_type const& k) const;
     value_type& get (value_type const& k);
     value_type const& get (std::size_t const idx) const;

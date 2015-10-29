@@ -237,9 +237,21 @@ setter_type::lookup () const
 }
 
 bool
+setter_type::exists () const
+{
+    value_type* node = lookup ();
+    if (node == nullptr)
+        return false;
+    if (VALUE_ARRAY == mpath.back ().mtag)
+        return node->exists (mpath.back ().midx);
+    else
+        return node->exists (mpath.back ().mkey);
+}
+
+bool
 exists (setter_type const& setter)
 {
-    return setter.lookup () != nullptr; 
+    return  setter.exists ();
 }
 
 }//namespace wjson
