@@ -17,7 +17,8 @@ encode_quoted (Iter s, Iter const e)
     for (; s < e; ++s) {
         uint32_t const code
             = 1 == sizeof (T) ? static_cast<uint8_t> (*s)
-            : static_cast<uint32_t> (*s);
+            : 4 == sizeof (T) ? static_cast<uint32_t> (*s)
+            : static_cast<uint16_t> (*s);
         if (code < 0x80 || sizeof (T) == 1) {
             switch (code) {
             case '"':
@@ -25,6 +26,9 @@ encode_quoted (Iter s, Iter const e)
                 break;
             case '\\':
                 buf += "\\\\";
+                break;
+            case '\b':
+                buf += "\\b";
                 break;
             case '\t':
                 buf += "\\t";

@@ -90,7 +90,7 @@ variation
 setter_type::tag () const
 {
     value_type* node = lookup ();
-    if (node == nullptr)
+    if (node == nullptr || ! exists ())
         return VALUE_NULL;
     if (VALUE_ARRAY == mpath.back ().mtag)
         return node->get (mpath.back ().midx).tag ();
