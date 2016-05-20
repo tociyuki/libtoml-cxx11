@@ -57,9 +57,9 @@ encode_quoted (Iter s, Iter const e)
                 }
                 else {
                     buf += "\\x";
-                    uint32_t const x = code & 15;
+                    uint32_t const x = (code >> 4) & 15;
                     buf.push_back (x < 10 ? x + '0' : x + 'a' - 10);
-                    uint32_t const y = (code >> 4) & 15;
+                    uint32_t const y = code & 15;
                     buf.push_back (y < 10 ? y + '0' : y + 'a' - 10);
                 }
                 break;
