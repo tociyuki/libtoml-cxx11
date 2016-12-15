@@ -1,5 +1,4 @@
-#ifndef INSPECT_HPP
-#define INSPECT_HPP
+#pragma once
 
 #include <string>
 #include <typeinfo>
@@ -99,5 +98,3 @@ encode_quoted (std::basic_string<C> const& str)
 {
     return encode_quoted (str.cbegin (), str.cend ());
 }
-
-#endif

@@ -723,7 +723,7 @@ toml_decoder_type::path_to_string (value_type const& path)
             default: t.push_back (c); break;
             }
     }
-    return std::move (t);
+    return t;
 }
 
 }//namespace wjson
