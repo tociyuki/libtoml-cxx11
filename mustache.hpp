@@ -40,6 +40,7 @@ public:
 protected:
     std::wstring m_source;
     std::vector<span_type> m_program;
+    bool parse (void);
     std::size_t match (std::size_t const pos, span_type& op) const;
     std::size_t skip_comment (std::size_t const pos, span_type& op) const;
     void render_block (std::size_t ip, std::vector<wjson::value_type *>& env,

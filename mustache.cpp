@@ -16,11 +16,22 @@ mustache::assemble (std::string const& octets)
     if (! decode_utf8 (octets, m_source))
         return false;
     m_program.push_back({L'#', 0, 0, 0});
-    std::size_t dot = 0;
-    std::size_t const eos = m_source.size ();
+    if (! parse ())
+        return false;
+    m_program.push_back({L'/', 0, 0, 0});
+    m_program[0].size = m_program.size () - 2;
+    m_program.back ().size = m_program[0].size;
+    return true;
+}
+
+bool
+mustache::parse (void)
+{
     span_type plain {L'+', 0, 0, 0};
     span_type tag;
-    std::vector<std::size_t> stack;
+    std::vector<std::size_t> section_nest;
+    std::size_t dot = 0;
+    std::size_t const eos = m_source.size ();
     while (dot < eos) {
         std::size_t const pos = dot;
         dot = match (pos, tag);
@@ -32,31 +43,26 @@ mustache::assemble (std::string const& octets)
         }
         plain.first = dot;
         if (L'#' == tag.code || L'^' == tag.code)
-            stack.push_back (m_program.size ());
+            section_nest.push_back (m_program.size ());
         m_program.push_back (tag);
         if (L'/' == tag.code) {
-            if (stack.empty ())
+            if (section_nest.empty ())
                 return false;
-            std::size_t const loc = stack.back ();
-            stack.pop_back ();
-            span_type& sharp = m_program[loc];
-            if (m_source.compare (sharp.first, sharp.last - sharp.first,
+            std::size_t const loc = section_nest.back ();
+            span_type& section = m_program[loc];
+            section_nest.pop_back ();
+            if (m_source.compare (section.first, section.last - section.first,
                     m_source, tag.first, tag.last - tag.first) != 0)
                 return false;
-            sharp.size = m_program.size () - loc - 2;
-            m_program.back ().size = sharp.size;
+            section.size = m_program.size () - loc - 2;
+            m_program.back ().size = section.size;
         }
     }
     if (plain.first < dot) {
         plain.last = dot;
         m_program.push_back (plain);
     }
-    if (! stack.empty ())
-        return false;
-    m_program.push_back({L'/', 0, 0, 0});
-    m_program[0].size = m_program.size () - 2;
-    m_program.back ().size = m_program[0].size;
-    return true;
+    return section_nest.empty ();
 }
 
 std::size_t
